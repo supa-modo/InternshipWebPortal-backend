@@ -26,7 +26,10 @@ module.exports = {
       role: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'user',
+      },
+      refreshToken: {
+        type: Sequelize.STRING,
+        allowNull: true, 
       },
       createdAt: {
         type: Sequelize.DATE,

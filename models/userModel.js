@@ -27,11 +27,14 @@ const User = sequelize.define('User', {
   role: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'user',
+  },
+  refreshToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 }, {
   tableName: 'users',
-  timestamps: true, // Adds createdAt and updatedAt fields
+  timestamps: true,
 });
 
 module.exports = User;

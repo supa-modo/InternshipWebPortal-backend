@@ -1,17 +1,22 @@
 const express=require('express');
-const dotenv = require('dotenv');
+const cors = require('cors');
+require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const sequelize = require('./config/database.js');
+const { notFound, errorHandler } = require('./middleware/errorHandler.js');
 
-dotenv.config();
 const app = express();
 const PORT_URL = process.env.PORT || 5000
 
+app.use(cors());
 // Middleware
 app.use(express.json());
 
 // Routes
 app.use('/auth', authRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 sequelize.sync()
   .then(() => {
