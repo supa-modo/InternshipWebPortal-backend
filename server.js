@@ -1,18 +1,23 @@
 const express=require('express');
-const app = express();
-const cors = require('cors');
-const {connectDB} = require('./config/dbConnect.js');
+const dotenv = require('dotenv');
+const authRoutes = require('./routes/authRoutes');
+const sequelize = require('./config/database.js');
 
-const bodyParser = require('body-parser');
-require('dotenv').config();
+dotenv.config();
+const app = express();
 const PORT_URL = process.env.PORT || 5000
 
-connectDB();
+// Middleware
+app.use(express.json());
 
-app.use("/", (req,res) =>{
-    res.send("Hello from the backend!");
-})
+// Routes
+app.use('/auth', authRoutes);
 
-app.listen(PORT_URL, ()=>{
-console.log(`Server is running on PORT ${PORT_URL}`)
-});
+sequelize.sync()
+  .then(() => {
+    console.log('Database connected and synced');
+    app.listen(PORT_URL, () => {
+      console.log(`Server running on port ${PORT_URL}`);
+    });
+  })
+  .catch((error) => console.log('Error connecting to database:', error));
