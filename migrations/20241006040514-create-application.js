@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('applications', {
+    await queryInterface.createTable("InternApplications", {
       id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
+        allowNull: false,
         autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
       },
       surname: {
         type: Sequelize.STRING,
@@ -44,7 +44,7 @@ module.exports = {
         allowNull: true,
       },
       identificationDocument: {
-        type: Sequelize.STRING, 
+        type: Sequelize.STRING,
         allowNull: true,
       },
       institutionName: {
@@ -96,7 +96,7 @@ module.exports = {
         allowNull: false,
       },
       insuranceDocument: {
-        type: Sequelize.STRING, 
+        type: Sequelize.STRING,
         allowNull: true,
       },
       internshipDepartment: {
@@ -112,19 +112,17 @@ module.exports = {
         allowNull: false,
       },
       createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
+        type: Sequelize.DATE,
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
+        type: Sequelize.DATE,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('applications');
-  }
+    await queryInterface.dropTable("InternApplications");
+  },
 };
