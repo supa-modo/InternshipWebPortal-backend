@@ -1,14 +1,14 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-class InternApplication extends Model {
+class InternshipApplications extends Model {
   // Static method to associate this model with others if needed
   static associate(models) {
     // Define associations here if needed
   }
 }
 
-InternApplication.init(
+InternshipApplications.init(
   {
     surname: DataTypes.STRING,
     firstName: DataTypes.STRING,
@@ -35,13 +35,22 @@ InternApplication.init(
     internshipDepartment: DataTypes.STRING,
     internshipStartDate: DataTypes.DATE,
     internshipEndDate: DataTypes.DATE,
+    applicationStatus: {
+      type: DataTypes.STRING,
+      defaultValue: "Pending",
+    },
+    internshipSupervisor: {
+      // New field added here
+      type: DataTypes.STRING,
+      defaultValue: "Not Assigned",
+    },
   },
   {
     sequelize,
-    modelName: "InternApplication",
-    tableName: "InternApplications",
+    modelName: "InternshipApplications",
+    tableName: "InternshipApplications",
     timestamps: true,
   }
 );
 
-module.exports = InternApplication;
+module.exports = InternshipApplications;

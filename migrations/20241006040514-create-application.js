@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("InternApplications", {
+    await queryInterface.createTable("InternshipApplications", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -99,6 +99,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      applicationStatus: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "Pending",
+      },
       internshipDepartment: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -110,6 +115,11 @@ module.exports = {
       internshipEndDate: {
         type: Sequelize.DATE,
         allowNull: false,
+      },
+      internshipSupervisor: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "Not Assigned",
       },
       createdAt: {
         allowNull: false,
@@ -123,6 +133,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("InternApplications");
+    await queryInterface.dropTable("InternshipApplications");
   },
 };
