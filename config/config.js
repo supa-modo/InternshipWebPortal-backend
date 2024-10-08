@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports = {
   development: {
@@ -6,33 +6,32 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_SERVER,
-    dialect: 'mssql', // Set the correct dialect
+    dialect: "mssql",
     options: {
       trustServerCertificate: true,
-      port: 1433 // Ensure the correct port
-    }
+      port: 1433,
+    },
   },
   test: {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_SERVER,
-    dialect: 'mssql',
+    dialect: "mssql",
     options: {
       trustServerCertificate: true,
-      port: 1433
-    }
+      port: 1433,
+    },
   },
   production: {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_SERVER,
-    dialect: 'mssql',
+    dialect: "mssql",
     options: {
       trustServerCertificate: true,
-      port: 1433
-    }
-  }
+      port: 1433,
+    },
+  },
 };
-

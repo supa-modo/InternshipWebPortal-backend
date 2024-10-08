@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const applicationRoutes = require("./routes/applicationsRoutes.js");
 const sequelize = require("./config/database.js");
 const { notFound, errorHandler } = require("./middleware/errorHandler.js");
+const policyRoutes = require("./routes/policyroutes.js");
 
 const app = express();
 const PORT_URL = process.env.PORT || 5000;
@@ -16,6 +17,7 @@ app.use(express.json());
 // Routes
 app.use("/auth", authRoutes);
 app.use("/api", applicationRoutes);
+app.use("/api", policyRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

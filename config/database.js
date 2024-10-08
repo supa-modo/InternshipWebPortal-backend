@@ -1,5 +1,5 @@
-const { Sequelize } = require('sequelize');
-const config = require('./config');
+const { Sequelize } = require("sequelize");
+const config = require("../config/config");
 
 // Initialize Sequelize with the correct environment (development, production, test)
 const sequelize = new Sequelize(
@@ -11,7 +11,8 @@ const sequelize = new Sequelize(
     dialect: config.development.dialect,
     dialectOptions: {
       options: {
-        trustServerCertificate: config.development.options.trustServerCertificate,
+        trustServerCertificate:
+          config.development.options.trustServerCertificate,
       },
     },
     port: config.development.options.port,
