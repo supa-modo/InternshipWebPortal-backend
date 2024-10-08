@@ -10,6 +10,6 @@ const router = express.Router();
 router.post("/apply-internship", createApplication);
 router.get("/all-applications", getApplications);
 router.put("/update-application/:idPassportNumber", updateApplication);
-router.delete("/delete-application", deleteApplication);
+router.delete("/delete-application/:idPassportNumber", deleteApplication);
 
 module.exports = router;

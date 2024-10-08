@@ -132,7 +132,7 @@ const getApplicationById = async (req, res) => {
 // Update an existing application
 const updateApplication = async (req, res) => {
   try {
-    const { idPassportNumber } = req.params; // Extract idPassportNumber from the params
+    const { idPassportNumber } = req.params; 
     const updatedData = req.body;
 
     // Find the application by idPassportNumber (not id)
@@ -174,9 +174,11 @@ const updateApplication = async (req, res) => {
 // Delete an application
 const deleteApplication = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { idPassportNumber } = req.params;
 
-    const application = await InternshipApplications.findByPk(id);
+    const application = await InternshipApplications.findOne({
+      where: { idPassportNumber },
+    });
 
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
