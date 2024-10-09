@@ -113,6 +113,71 @@ const getApplications = async (req, res) => {
   }
 };
 
+//Fetch applications by filter
+const getFilteredApplications = async (req, res) => {
+  try {
+    const { startDate, endDate, status, department, supervisor, institution, nationality, duration } = req.query;
+
+    const whereClause = {};
+
+    if (startDate) {
+      whereClause.internshipStartDate = { [Op.gte]: new Date(startDate) };
+    }
+
+    if (endDate) {
+      whereClause.internshipEndDate = { [Op.lte]: new Date(endDate) };
+    }
+
+    if (status) {
+      whereClause.applicationStatus = status;
+    }
+
+    if (department) {
+      whereClause.internshipDepartment = department;
+    }
+
+    if (supervisor) {
+      whereClause.supervisor = supervisor;
+    }
+
+    if (institution) {
+      whereClause.institutionName = institution;
+    }
+
+    if (nationality) {
+      whereClause.nationality = nationality;
+    }
+
+    if (duration) {
+      let durationCondition;
+      
+      switch (duration) {
+        case "less than or equal to 1 month":
+          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 1`);
+          break;
+        case "less than or equal to 2 months":
+          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 2`);
+          break;
+        case "less than or equal to 3 months":
+          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 3`);
+          break;
+        case "less than or equal to 6 months":
+          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 6`);
+          break;
+        default:
+          res.status(400).json({ message: "Invalid duration value" });
+          return;
+      }}
+
+    const applications = await InternshipApplications.findAll({ where: whereClause });
+    res.json(applications);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching Internship applications" });
+  }
+};
+
+
 // Fetch a specific application by ID
 const getApplicationById = async (req, res) => {
   try {
@@ -196,6 +261,7 @@ const deleteApplication = async (req, res) => {
 module.exports = {
   createApplication,
   getApplications,
+  getFilteredApplications,
   getApplicationById,
   updateApplication,
   deleteApplication,
