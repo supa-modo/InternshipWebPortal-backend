@@ -102,7 +102,7 @@ const createApplication = async (req, res) => {
   }
 };
 
-// Fetch all applications
+// Fetching all applications
 const getApplications = async (req, res) => {
   try {
     const applications = await InternshipApplications.findAll();
@@ -135,7 +135,7 @@ const updateApplication = async (req, res) => {
     const { idPassportNumber } = req.params; 
     const updatedData = req.body;
 
-    // Find the application by idPassportNumber (not id)
+    // Find the application by idPassportNumber
     const application = await InternshipApplications.findOne({
       where: { idPassportNumber },
     });
