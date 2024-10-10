@@ -113,10 +113,45 @@ const getApplications = async (req, res) => {
   }
 };
 
+//Fetching application stats
+const getApplicationsStats = async (req, res) => {
+  try {
+    const totalApplications = await InternshipApplications.count();
+    const approvedApplications = await InternshipApplications.count({
+      where: { applicationStatus: "approved" },
+    });
+    const underReviewApplications = await InternshipApplications.count({
+      where: { applicationStatus: "under review" },
+    });
+    const pendingApplications = await InternshipApplications.count({
+      where: { applicationStatus: "pending" },
+    });
+
+    res.json({
+      totalApplications,
+      approvedApplications,
+      underReviewApplications,
+      pendingApplications,
+    });
+  } catch (error) {
+    console.error("Error fetching internship stats:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
 //Fetch applications by filter
 const getFilteredApplications = async (req, res) => {
   try {
-    const { startDate, endDate, status, department, supervisor, institution, nationality, duration } = req.query;
+    const {
+      startDate,
+      endDate,
+      status,
+      department,
+      supervisor,
+      institution,
+      nationality,
+      duration,
+    } = req.query;
 
     const whereClause = {};
 
@@ -137,7 +172,7 @@ const getFilteredApplications = async (req, res) => {
     }
 
     if (supervisor) {
-      whereClause.supervisor = supervisor;
+      whereClause.internshipSupervisor = supervisor;
     }
 
     if (institution) {
@@ -150,33 +185,43 @@ const getFilteredApplications = async (req, res) => {
 
     if (duration) {
       let durationCondition;
-      
+
       switch (duration) {
-        case "less than or equal to 1 month":
-          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 1`);
+        case "1": // 1 month
+          durationCondition = literal(
+            `DATEDIFF(MONTH, internshipStartDate, internshipEndDate) = 1`
+          );
           break;
-        case "less than or equal to 2 months":
-          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 2`);
+        case "3": // 3 months
+          durationCondition = literal(
+            `DATEDIFF(MONTH, internshipStartDate, internshipEndDate) = 3`
+          );
           break;
-        case "less than or equal to 3 months":
-          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 3`);
-          break;
-        case "less than or equal to 6 months":
-          durationCondition = literal(`DATEDIFF(MONTH, internshipStartDate, internshipEndDate) <= 6`);
+        case "6": // 6 months
+          durationCondition = literal(
+            `DATEDIFF(MONTH, internshipStartDate, internshipEndDate) = 6`
+          );
           break;
         default:
-          res.status(400).json({ message: "Invalid duration value" });
-          return;
-      }}
+          durationCondition = null;
+          break;
+      }
 
-    const applications = await InternshipApplications.findAll({ where: whereClause });
-    res.json(applications);
+      if (durationCondition) {
+        whereClause[Op.and] = durationCondition;
+      }
+    }
+
+    const filteredApplications = await InternshipApplications.findAll({
+      where: whereClause,
+    });
+
+    res.json(filteredApplications);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching Internship applications" });
   }
 };
-
 
 // Fetch a specific application by ID
 const getApplicationById = async (req, res) => {
@@ -197,7 +242,7 @@ const getApplicationById = async (req, res) => {
 // Update an existing application
 const updateApplication = async (req, res) => {
   try {
-    const { idPassportNumber } = req.params; 
+    const { idPassportNumber } = req.params;
     const updatedData = req.body;
 
     // Find the application by idPassportNumber
@@ -262,6 +307,7 @@ module.exports = {
   createApplication,
   getApplications,
   getFilteredApplications,
+  getApplicationsStats,
   getApplicationById,
   updateApplication,
   deleteApplication,
