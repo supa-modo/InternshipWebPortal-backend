@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const applicationRoutes = require("./routes/applicationsRoutes.js");
 const sequelize = require("./config/database.js");
@@ -10,9 +11,15 @@ const policyRoutes = require("./routes/policyroutes.js");
 const app = express();
 const PORT_URL = process.env.PORT || 5000;
 
-app.use(cors());
-// Middleware
+// Middlewares
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true, // Allow credentials (cookies, auth headers)
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use("/auth", authRoutes);

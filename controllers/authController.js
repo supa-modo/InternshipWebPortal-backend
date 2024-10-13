@@ -11,9 +11,10 @@ const generateToken = (user) => {
       id: user.id,
       username: user.username,
       email: user.email,
+      role: user.role,
     },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
+    { expiresIn: process.env.JWT_EXPIRES_IN }
   );
 };
 
@@ -85,9 +86,20 @@ exports.loginUser = asyncHandler(async (req, res) => {
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
+    // Save refreshToken to the user's record in the database
     user.refreshToken = refreshToken;
     await user.save();
 
+    // Set the refresh token as a secure HTTP-only cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Only secure in production
+      sameSite: "Strict", // CSRF protection
+      // path: "/refresh",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days limit for refresh token
+    });
+
+    // Return the access token in the response body
     res.status(200).json({
       message: "Login successful",
       user: {
@@ -95,7 +107,6 @@ exports.loginUser = asyncHandler(async (req, res) => {
         username: user.username,
         email: user.email,
         accessToken,
-        refreshToken,
       },
     });
   } catch (error) {
@@ -105,31 +116,29 @@ exports.loginUser = asyncHandler(async (req, res) => {
 
 // Refresh token route
 exports.refreshAccessToken = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
-
+  const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) {
     return res.status(403).json({ message: "Refresh token required" });
   }
 
   // Find user with the given refresh token
   const user = await User.findOne({ where: { refreshToken } });
-
   if (!user) {
     return res.status(403).json({ message: "Invalid refresh token" });
   }
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-
     // Generating new access token
     const accessToken = jwt.sign(
       {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
     res.status(200).json({ accessToken });
@@ -138,17 +147,21 @@ exports.refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-//logout functionality
+
+//FIXME: Come back and check on the logout functionality
+// Logout functionality
 exports.logoutUser = asyncHandler(async (req, res) => {
-  const { userId } = req.user;
+  const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+  const { userId } = decoded.id; // userId is retrieved from the decoded token in authenticateToken
 
   // Find the user and remove the refresh token
   const user = await User.findByPk(userId);
   if (user) {
     user.refreshToken = null;
     await user.save();
-    res.status(200).json({ message: "Logged out successfully" });
+    res.clearCookie("refreshToken");
+    return res.status(200).json({ message: "Logged out successfully" });
   } else {
-    res.status(400).json({ message: "User not found" });
+    return res.status(400).json({ message: "User not found" });
   }
 });

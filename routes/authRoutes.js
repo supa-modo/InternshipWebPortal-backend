@@ -11,6 +11,7 @@ router.get('/all-users', authenticateToken.protect, authenticateToken.adminOnly,
 router.get('/get-user/:username', authenticateToken.protect, authenticateToken.adminOnly, getUserByUsername);
 router.delete('/delete-user/:username', authenticateToken.protect, authenticateToken.adminOnly, deleteUser);
 router.post('/refresh', refreshAccessToken);
-router.put('/logout/:username', logoutUser);
+router.get('/logout', logoutUser);
+
 
 module.exports = router;

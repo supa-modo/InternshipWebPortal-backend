@@ -13,7 +13,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   try {
     // Verification of token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findByPk(decoded.id); // Corrected from 'decoded.userId' to 'decoded.id'
+    req.user = await User.findByPk(decoded.id);
 
     if (!req.user) {
       throw new Error("Not authorized. User not found, check your credentials");
