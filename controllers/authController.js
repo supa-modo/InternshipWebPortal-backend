@@ -107,6 +107,7 @@ exports.loginUser = asyncHandler(async (req, res) => {
         username: user.username,
         email: user.email,
         accessToken,
+        refreshToken,
       },
     });
   } catch (error) {
@@ -147,21 +148,22 @@ exports.refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+//FIXME: Come back and check on the logout functionality to also delete refreshtoken from db
 
-//FIXME: Come back and check on the logout functionality
-// Logout functionality
+
+// Logout user
 exports.logoutUser = asyncHandler(async (req, res) => {
-  const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-  const { userId } = decoded.id; // userId is retrieved from the decoded token in authenticateToken
+  try {
+    // Clear the refresh token cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
 
-  // Find the user and remove the refresh token
-  const user = await User.findByPk(userId);
-  if (user) {
-    user.refreshToken = null;
-    await user.save();
-    res.clearCookie("refreshToken");
-    return res.status(200).json({ message: "Logged out successfully" });
-  } else {
-    return res.status(400).json({ message: "User not found" });
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    res.status(500).json({ message: `Logout failed. ${error.message}` });
   }
 });
+

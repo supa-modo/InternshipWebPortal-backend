@@ -1,4 +1,5 @@
-const authenticateToken = require('../middleware/authMiddleware');
+const authenticateToken = require("../middleware/authMiddleware");
+const upload = require("../config/uploadsConfig.js");
 
 const express = require("express");
 const {
@@ -11,15 +12,16 @@ const {
 } = require("../controllers/internApplicationController.js");
 const router = express.Router();
 
-// router.post("/apply-internship", createApplication);
-// router.get("/all-applications", authenticateToken.protect,  getApplications);
-// router.get("/filtered-applications", authenticateToken.protect, getFilteredApplications);
-// router.get("/applications-stats", authenticateToken.protect, getApplicationsStats);
-// router.put("/update-application/:idPassportNumber", authenticateToken.protect, authenticateToken.adminOnly, updateApplication);
-// router.delete("/delete-application/:idPassportNumber", authenticateToken.protect, authenticateToken.protect, deleteApplication);
-
-router.post("/apply-internship", createApplication);
-router.get("/all-applications",  getApplications);
+router.post(
+  "/apply-internship",
+  upload.fields([
+    { name: "academicDocuments", maxCount: 1 },
+    { name: "identificationDocument", maxCount: 1 },
+    { name: "insuranceDocument", maxCount: 1 },
+  ]),
+  createApplication
+);
+router.get("/all-applications", getApplications);
 router.get("/filtered-applications", getFilteredApplications);
 router.get("/applications-stats", getApplicationsStats);
 router.put("/update-application/:idPassportNumber", updateApplication);

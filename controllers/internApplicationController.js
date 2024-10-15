@@ -1,9 +1,14 @@
 const { Op } = require("sequelize"); // Import Sequelize operators
 const InternshipApplications = require("../models/internshipApplications");
+const path = require("path");
 
-// Controller to handle Internship application creation
+const upload = require("../config/uploadsConfig");
+
+//Controller for creating a new internship application with file uploads
 const createApplication = async (req, res) => {
   try {
+    // Files handled by multer
+    const { files } = req;
     const {
       surname,
       firstName,
@@ -13,54 +18,69 @@ const createApplication = async (req, res) => {
       nationality,
       idPassportNumber,
       address,
-      identificationDocument,
       institutionName,
       courseProgram,
       currentYear,
       yearOfGraduation,
       academicQualification,
-      academicDocuments,
       insurancePolicyNumber,
       insuranceCompany,
       policyExpirationDate,
       emergencyContactPerson,
       emergencyContactPhone,
       emergencyContactEmail,
-      insuranceDocument,
       internshipDepartment,
       internshipStartDate,
       internshipEndDate,
     } = req.body;
 
-    // Get the current date and the date 2 months ago
+    // Get relative paths from the uploaded files
+    const academicDocumentsFileName = req.files.academicDocuments
+      ? `uploads/${path.basename(req.files.academicDocuments[0].path)}`
+      : null;
+
+    const identificationDocumentFileName = req.files.identificationDocument
+      ? `uploads/${path.basename(req.files.identificationDocument[0].path)}`
+      : null;
+
+    const insuranceDocumentFileName = req.files.insuranceDocument
+      ? `uploads/${path.basename(req.files.insuranceDocument[0].path)}`
+      : null;
+
+
+    // Validate incoming data
+    if (!email && !idPassportNumber) {
+      return res.status(400).json({
+        message: "Email and ID/Passport number are required.",
+      });
+    }
+
+    // Get current date and the date 2 months ago
     const twoMonthsAgo = new Date();
     twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
 
-    // Check if the applicant has applied within the last 2 months using ID/Passport number
-    const existingApplication = await InternshipApplications.findOne({
-      where: {
-        [Op.or]: [
-          {
-            idPassportNumber: idPassportNumber,
-          },
-          {
-            email: email,
-          },
-        ],
-        createdAt: {
-          [Op.gte]: twoMonthsAgo, // Check if the application was created within the last 2 months
-        },
+    // Build query for checking existing applications
+    const whereClause = {
+      createdAt: {
+        [Op.gte]: twoMonthsAgo, // Check if the application was created within the last 2 months
       },
+    };
+
+    if (idPassportNumber) whereClause.idPassportNumber = idPassportNumber;
+    if (email) whereClause.email = email;
+
+    const existingApplication = await InternshipApplications.findOne({
+      where: whereClause,
     });
 
-    // If a recent application is found, return an error
     if (existingApplication) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: `You have an existing application made on ${existingApplication.createdAt.toDateString()}`,
       });
     }
 
-    // If no recent application is found, create a new application
+
+    // Create the application
     const internshipApplications = await InternshipApplications.create({
       surname,
       firstName,
@@ -70,26 +90,26 @@ const createApplication = async (req, res) => {
       nationality,
       idPassportNumber,
       address,
-      identificationDocument,
       institutionName,
       courseProgram,
       currentYear,
       yearOfGraduation,
       academicQualification,
-      academicDocuments,
       insurancePolicyNumber,
       insuranceCompany,
       policyExpirationDate,
       emergencyContactPerson,
       emergencyContactPhone,
       emergencyContactEmail,
-      insuranceDocument,
       internshipDepartment,
       internshipStartDate,
       internshipEndDate,
+      academicDocuments: academicDocumentsFileName,
+      identificationDocument: identificationDocumentFileName,
+      insuranceDocument: insuranceDocumentFileName,
     });
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Application successfully created!",
       internshipApplications,
     });
@@ -97,7 +117,7 @@ const createApplication = async (req, res) => {
     console.error("Error creating application:", error);
     return res.status(500).json({
       message:
-        "An error occurred while creating the application. Please try again later",
+        "An error occurred while creating the application. Please try again later.",
     });
   }
 };
@@ -254,17 +274,17 @@ const updateApplication = async (req, res) => {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // Check if the application is older than 2 months
-    const currentDate = new Date();
-    if (
-      new Date(application.createdAt) <
-      currentDate.setMonth(currentDate.getMonth() - 2)
-    ) {
-      return res.status(400).json({
-        message:
-          "This application is already older than 2 months and has been moved to the archive. Remove from archive and try again",
-      });
-    }
+    // // Check if the application is older than 2 months
+    // const currentDate = new Date();
+    // if (
+    //   new Date(application.createdAt) <
+    //   currentDate.setMonth(currentDate.getMonth() - 2)
+    // ) {
+    //   return res.status(400).json({
+    //     message:
+    //       "This application is already older than 2 months and has been moved to the archive. Remove from archive and try again",
+    //   });
+    // }
 
     // Update the application
     await application.update(updatedData);

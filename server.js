@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
+const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const applicationRoutes = require("./routes/applicationsRoutes.js");
 const sequelize = require("./config/database.js");
@@ -13,13 +14,16 @@ const PORT_URL = process.env.PORT || 5000;
 
 // Middlewares
 const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true, // Allow credentials (cookies, auth headers)
+  origin: "http://localhost:3001",
+  credentials: true, 
 };
 app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Routes
 app.use("/auth", authRoutes);
