@@ -47,7 +47,6 @@ const createApplication = async (req, res) => {
       ? `uploads/${path.basename(req.files.insuranceDocument[0].path)}`
       : null;
 
-
     // Validate incoming data
     if (!email && !idPassportNumber) {
       return res.status(400).json({
@@ -78,7 +77,6 @@ const createApplication = async (req, res) => {
         message: `You have an existing application made on ${existingApplication.createdAt.toDateString()}`,
       });
     }
-
 
     // Create the application
     const internshipApplications = await InternshipApplications.create({
@@ -159,87 +157,74 @@ const getApplicationsStats = async (req, res) => {
   }
 };
 
-//Fetch applications by filter
+// Fetch Internship applications by filter
 const getFilteredApplications = async (req, res) => {
+  const {
+    startDate,
+    endDate,
+    status,
+    department,
+    supervisor,
+    institution,
+    nationality,
+    activeFilter,
+  } = req.query;
+
+  // Create a filter object for Sequelize
+  let filter = {};
+
+  // Apply date range filter if provided
+  if (startDate && endDate) {
+    filter.internshipStartDate = { [Op.between]: [startDate, endDate] };
+  }
+
+  // Apply status filter if provided
+  if (status) {
+    filter.applicationStatus = status;
+  }
+
+  // Apply department filter if provided
+  if (department) {
+    filter.internshipDepartment = department;
+  }
+
+  // Apply supervisor filter if provided
+  if (supervisor) {
+    filter.internshipSupervisor = supervisor;
+  }
+
+  // Apply institution filter if provided
+  if (institution) {
+    filter.institutionName = institution;
+  }
+
+  // Apply nationality filter if provided
+  if (nationality) {
+    filter.nationality = nationality;
+  }
+
+  // Handle active/completed filter
+  if (activeFilter === "active") {
+    filter.applicationStatus = "Approved"; // Only fetch approved interns
+    filter.internshipEndDate = {
+      [Op.gt]: new Date(), // End date is in the future
+    };
+  } else if (activeFilter === "completed") {
+    filter.applicationStatus = "Approved"; // Only fetch approved interns
+    filter.internshipEndDate = {
+      [Op.lt]: new Date(), // End date has passed
+    };
+  }
+
   try {
-    const {
-      startDate,
-      endDate,
-      status,
-      department,
-      supervisor,
-      institution,
-      nationality,
-      duration,
-    } = req.query;
-
-    const whereClause = {};
-
-    if (startDate) {
-      whereClause.internshipStartDate = { [Op.gte]: new Date(startDate) };
-    }
-
-    if (endDate) {
-      whereClause.internshipEndDate = { [Op.lte]: new Date(endDate) };
-    }
-
-    if (status) {
-      whereClause.applicationStatus = status;
-    }
-
-    if (department) {
-      whereClause.internshipDepartment = department;
-    }
-
-    if (supervisor) {
-      whereClause.internshipSupervisor = supervisor;
-    }
-
-    if (institution) {
-      whereClause.institutionName = institution;
-    }
-
-    if (nationality) {
-      whereClause.nationality = nationality;
-    }
-
-    if (duration) {
-      let durationCondition;
-
-      switch (duration) {
-        case "1": // 1 month
-          durationCondition = literal(
-            `DATEDIFF(MONTH, internshipStartDate, internshipEndDate) = 1`
-          );
-          break;
-        case "3": // 3 months
-          durationCondition = literal(
-            `DATEDIFF(MONTH, internshipStartDate, internshipEndDate) = 3`
-          );
-          break;
-        case "6": // 6 months
-          durationCondition = literal(
-            `DATEDIFF(MONTH, internshipStartDate, internshipEndDate) = 6`
-          );
-          break;
-        default:
-          durationCondition = null;
-          break;
-      }
-
-      if (durationCondition) {
-        whereClause[Op.and] = durationCondition;
-      }
-    }
-
-    const filteredApplications = await InternshipApplications.findAll({
-      where: whereClause,
+    const applications = await InternshipApplications.findAll({
+      where: filter,
     });
 
-    res.json(filteredApplications);
+    res.status(200).json(applications);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching Internship applications" });
+    console.error("Error fetching applications:", error);
+    res.status(500).json({ message: "Error fetching applications" });
   }
 };
 

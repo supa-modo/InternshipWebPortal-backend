@@ -1,6 +1,7 @@
 const authenticateToken = require("../middleware/authMiddleware");
 const upload = require("../config/uploadsConfig.js");
 
+
 const express = require("express");
 const {
   createApplication,

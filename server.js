@@ -8,14 +8,21 @@ const applicationRoutes = require("./routes/applicationsRoutes.js");
 const sequelize = require("./config/database.js");
 const { notFound, errorHandler } = require("./middleware/errorHandler.js");
 const policyRoutes = require("./routes/policyroutes.js");
+const signedLettersRoutes = require("./routes/signedLettersRoutes.js");
 
 const app = express();
-const PORT_URL = process.env.PORT || 5000;
+const PORT_URL = process.env.SERVER_URL;
+
+const allowedOrigins = {
+  "http://localhost:3000": true,
+  "http://localhost:3001": true,
+  "http://localhost:3002": true,
+};
 
 // Middlewares
 const corsOptions = {
-  origin: "http://localhost:3001",
-  credentials: true, 
+  origin: allowedOrigins,
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -29,7 +36,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/auth", authRoutes);
 app.use("/api", applicationRoutes);
 app.use("/api", policyRoutes);
-
+app.use("/api", signedLettersRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
@@ -38,6 +45,7 @@ sequelize
   .then(() => {
     console.log("Database connected and synced");
     app.listen(PORT_URL, () => {
+      // app.listen(PORT_URL, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT_URL}`);
     });
   })

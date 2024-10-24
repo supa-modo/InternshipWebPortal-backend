@@ -1,8 +1,8 @@
+// In models/InternshipApplications.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
 class InternshipApplications extends Model {
-  // Static method to associate this model with others if needed
   static associate(models) {
     // Define associations here if needed
   }
@@ -40,13 +40,12 @@ InternshipApplications.init(
       defaultValue: "Pending",
     },
     internshipSupervisor: {
-      // New field added here
       type: DataTypes.STRING,
       defaultValue: "Not Assigned",
     },
   },
   {
-    sequelize,
+    sequelize, // This is correct
     modelName: "InternshipApplications",
     tableName: "InternshipApplications",
     timestamps: true,
