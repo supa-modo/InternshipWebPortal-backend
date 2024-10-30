@@ -14,6 +14,7 @@ const app = express();
 const PORT_URL = process.env.SERVER_URL;
 
 const allowedOrigins = {
+  "https://green-ocean-080f7b703.5.azurestaticapps.net": true,
   "http://localhost:3000": true,
   "http://localhost:3001": true,
   "http://localhost:3002": true,
