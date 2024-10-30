@@ -9,7 +9,6 @@ module.exports = {
     dialect: "mssql",
     options: {
       trustServerCertificate: true,
-      port: 1433,
     },
   },
   test: {
@@ -20,7 +19,6 @@ module.exports = {
     dialect: "mssql",
     options: {
       trustServerCertificate: true,
-      port: 1433,
     },
   },
   production: {
@@ -31,7 +29,6 @@ module.exports = {
     dialect: "mssql",
     options: {
       trustServerCertificate: true,
-      port: 1433,
     },
   },
 };
