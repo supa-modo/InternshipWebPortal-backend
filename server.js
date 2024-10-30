@@ -11,7 +11,7 @@ const policyRoutes = require("./routes/policyroutes.js");
 const signedLettersRoutes = require("./routes/signedLettersRoutes.js");
 
 const app = express();
-const PORT_URL = process.env.SERVER_URL;
+const PORT_URL = process.env.PORT || 8080;
 
 const allowedOrigins = {
   "https://green-ocean-080f7b703.5.azurestaticapps.net": true,
