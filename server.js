@@ -32,10 +32,17 @@ const corsOptions = {
   credentials: true,
 };
 
-app.options('*', cors()); // Include this to handle preflight requests globally
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+app.options("*", cors()); // Include this to handle preflight requests globally
 
 app.use(cors(corsOptions));
-
 
 app.use(express.json());
 app.use(cookieParser());
