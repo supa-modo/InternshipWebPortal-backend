@@ -12,22 +12,30 @@ const signedLettersRoutes = require("./routes/signedLettersRoutes.js");
 
 const app = express();
 const PORT_URL = process.env.PORT || 8080;
-
-const allowedOrigins = {
-  "https://green-ocean-080f7b703.5.azurestaticapps.net": true,
-  "https://40.127.13.142/api/apply-internship": true,
-  "http://localhost:3000": true,
-  "http://localhost:3001": true,
-  "http://localhost:3002": true,
-};
+const allowedOrigins = [
+  "https://green-ocean-080f7b703.5.azurestaticapps.net",
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+];
 
 // Middlewares
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true); // Allow the origin
+    } else {
+      callback(new Error("Not allowed by CORS")); // Deny the origin
+    }
+  },
   credentials: true,
 };
+
+app.options('*', cors()); // Include this to handle preflight requests globally
+
 app.use(cors(corsOptions));
-// app.use(cors());
+
 
 app.use(express.json());
 app.use(cookieParser());
