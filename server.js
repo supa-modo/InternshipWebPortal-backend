@@ -45,8 +45,8 @@ sequelize
   .sync()
   .then(() => {
     console.log("Database connected and synced");
-    app.listen(PORT_URL, () => {
-      // app.listen(PORT_URL, "0.0.0.0", () => {
+    // app.listen(PORT_URL, () => {
+      app.listen(PORT_URL, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT_URL}`);
     });
   })
