@@ -15,18 +15,19 @@ const PORT_URL = process.env.PORT || 8080;
 
 const allowedOrigins = {
   "https://green-ocean-080f7b703.5.azurestaticapps.net": true,
+  "https://40.127.13.142/api/apply-internship": true,
   "http://localhost:3000": true,
   "http://localhost:3001": true,
   "http://localhost:3002": true,
 };
 
-// // Middlewares
-// const corsOptions = {
-//   origin: allowedOrigins,
-//   credentials: true,
-// };
-// app.use(cors(corsOptions));
-app.use(cors());
+// Middlewares
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+};
+app.use(cors(corsOptions));
+// app.use(cors());
 
 app.use(express.json());
 app.use(cookieParser());
