@@ -20,12 +20,13 @@ const allowedOrigins = {
   "http://localhost:3002": true,
 };
 
-// Middlewares
-const corsOptions = {
-  origin: allowedOrigins,
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// // Middlewares
+// const corsOptions = {
+//   origin: allowedOrigins,
+//   credentials: true,
+// };
+// app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(express.json());
 app.use(cookieParser());
