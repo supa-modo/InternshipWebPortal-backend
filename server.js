@@ -12,6 +12,7 @@ const signedLettersRoutes = require("./routes/signedLettersRoutes.js");
 
 const app = express();
 const PORT_URL = process.env.PORT || 8080;
+// const PORT_URL = 5000;
 const allowedOrigins = [
   "https://green-ocean-080f7b703.5.azurestaticapps.net",
   "http://localhost:3000",

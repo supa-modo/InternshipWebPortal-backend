@@ -148,8 +148,60 @@ exports.refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-//FIXME: Come back and check on the logout functionality to also delete refreshtoken from db
+// Delete a user by ID
+exports.deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
 
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  await user.destroy();
+  res.status(200).json({ message: "User deleted successfully" });
+});
+
+// Reset password for a user
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // Hash the new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  await user.save();
+
+  res.status(200).json({ message: "Password reset successfully" });
+});
+
+
+// Update User Role
+exports.updateUserRole = asyncHandler(async (req, res) => {
+  const { userId, newRole } = req.body;
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.role = newRole;
+    await user.save();
+
+    res.status(200).json({ message: "User role updated successfully", user });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: `Failed to update user role. ${error.message}` });
+  }
+});
+
+//FIXME: Come back and check on the logout functionality to also delete refreshtoken from db
 
 // Logout user
 exports.logoutUser = asyncHandler(async (req, res) => {
@@ -166,4 +218,3 @@ exports.logoutUser = asyncHandler(async (req, res) => {
     res.status(500).json({ message: `Logout failed. ${error.message}` });
   }
 });
-

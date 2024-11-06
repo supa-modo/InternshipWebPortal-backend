@@ -4,6 +4,8 @@ const {
   loginUser,
   refreshAccessToken,
   logoutUser,
+  resetPassword,
+  updateUserRole,
 } = require("../controllers/authController");
 const authenticateToken = require("../middleware/authMiddleware");
 const {
@@ -14,8 +16,13 @@ const {
 } = require("../controllers/userController");
 const router = express.Router();
 
+// Public Routes
 router.post("/register", createNewUser);
 router.post("/login", loginUser);
+router.post("/refresh", refreshAccessToken);
+router.post("/logout", logoutUser);
+
+// Admin Routes
 router.put(
   "/update-user/:username",
   authenticateToken.protect,
@@ -24,8 +31,8 @@ router.put(
 );
 router.get(
   "/all-users",
-  authenticateToken.protect,
-  authenticateToken.adminOnly,
+  // authenticateToken.protect,
+  // authenticateToken.adminOnly,
   getAllUsers
 );
 router.get(
@@ -34,13 +41,13 @@ router.get(
   authenticateToken.adminOnly,
   getUserByUsername
 );
-router.delete(
-  "/delete-user/:username",
+router.delete("/delete-user/:id", deleteUser);
+router.put("/reset-password/:id", resetPassword);
+router.put(
+  "/update-role",
   authenticateToken.protect,
   authenticateToken.adminOnly,
-  deleteUser
+  updateUserRole
 );
-router.post("/refresh", refreshAccessToken);
-router.post("/logout", logoutUser);
 
 module.exports = router;
